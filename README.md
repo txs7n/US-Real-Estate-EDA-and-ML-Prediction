@@ -18,12 +18,12 @@ The [data](https://www.kaggle.com/datasets/ahmedshahriarsakib/usa-real-estate-da
 - price (housing price)
 
 ## Tools
-Python: For data processing and modeling.  
-Pandas & NumPy: For data manipulation.   
-Matplotlib & Seaborn: For data visualization.  
-CatBoost: For predictive modeling.  
-LightGBM: For predictive modeling  
-Scikit-learn: For model evaluation and metrics calculation.  
+- Python: For data processing and modeling.  
+- Pandas & NumPy: For data manipulation.   
+- Matplotlib & Seaborn: For data visualization.  
+- CatBoost: For predictive modeling.  
+- LightGBM: For predictive modeling  
+- Scikit-learn: For model evaluation and metrics calculation.  
 
 ## Process
 As with any data analysis/science process, this project began with importing the necessary libraries and reading the CSV file downloaded from the Kaggle source into a dataframe. I started with an initial data understanding to get a general overview of the data and noticed some nulls in the dataframe. I especially noticed a large number of nulls from the 'prev_sold' column (over 50% of the data was null). Since this much data was missing from this column, it only makes sense to remove it. But before that, I wanted to be sure of its correlation with the target variable **price**.  
