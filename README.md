@@ -33,8 +33,10 @@ Upon evaluation, I found the correlation between the **prev_sold** column and **
 ### Handling Nulls & Removing Outliers
 There were still a significant number of nulls in the remaining features; 14%, 12%, 29%, and 32% of nulls for columns **bed**, **bath**, **acre_lot**, and **house_size** respectively. The first thing I did was to remove all nulls peculiar to all features as it'll be difficult to fill these values with corresponding features. After that, I decided to fill the nulls via imputation, which we normally do with the mean. But means are affected by outliers. It was pertinent to investigate outliers (if and how they exist) in the dataset before going ahead with this process.  
 
+
 ![feature_outliers](https://github.com/txs7n/Retail-Business-Sales-Data-Analysis/assets/118135226/e51ebd75-413a-45cf-8d65-8a262e3ab18f)
 
+  
 There was a considerable amount of outliers in the dataset as seen in the boxplots above. It is common practice to use the interquartile range (IQR) technique to eliminate upper and lower-bound outliers but the nature of every dataset is unique. Additionally, the nature and scale of each feature in a dataset is also unique. Outlier removal, I have found, needs to be customized; must come from a place of deep understanding of the data and its features. I went into the outlier removal process of this dataset with this mindset.  
 
 The first thing I did was to investigate the 99th, 95th, and 90th percentile (upper bound outliers) of the dataset. There were outrageous observations for some of these features. For example, there was an observation where there were 99 bedrooms and 198 bathrooms. At first glance, one might think it a luxurious, hollywood-esque property. But the house_size feature tells us another story; it is quite impossible to have these many bed and bathrooms in a property of only 14,000 sq. ft. given the [average bedroom size to be 132 square feet](https://cedreo.com/blog/average-bedroom-size/). There were other interesting outliers in this upper bound as well.  
@@ -52,14 +54,16 @@ The best option to fill the nulls, therefore, was to use the median.
 ## Exploratory Data Analysis
 The exploratory data analysis of this real estate dataset mostly constituted the Bivariate analyses of the features with the target feature **price**.  
 
-**Bivariate Analysis of Bedroom and Price**
+**Bivariate Analysis of Bedroom and Price**  
+
 ![median_home_price_by_bedroom](https://github.com/txs7n/Retail-Business-Sales-Data-Analysis/assets/118135226/680f95a4-a773-4eb2-ad27-aa133c0bb52b)
 
 For this plot, there is an overall increasing trend in median price as the number of bedrooms increases from 1 to 6. This is expected since more bedrooms generally correspond to larger properties which are likely to be more expensive.
 
 However, the median housing price with respect to number of beds does not seem to follow a linear trajectory. This could be a result of other factors such as state, city, house size, etc., which we will analyze subsequently.
 
-**Bivariate Analysis of Bathrooms and Price**
+**Bivariate Analysis of Bathrooms and Price**  
+
 ![median_home_price_by_bathroom](https://github.com/txs7n/Retail-Business-Sales-Data-Analysis/assets/118135226/1d0b4875-ebd9-44d3-b343-0cb7a18bac35)
 
 This graph, unlike the previous, shows a more linear upward trend between price and number of bathrooms. So irrespective of other factors, the median home price increases as the number of bathrooms increases.
@@ -70,18 +74,19 @@ This graph, unlike the previous, shows a more linear upward trend between price 
 From this plot, we can see that the most expensive place to live in is New York, while the least expensive place to live is Puerto Rico.  
 
 **Bivariate Analysis of City and Price**  
+
 ![median_home_price_by_city](https://github.com/txs7n/Retail-Business-Sales-Data-Analysis/assets/118135226/6ff5cb12-43ca-4b1a-bff4-39552424e600)
 
 From this graph, the top 10 expensive cities to live are in Massachussetts, New York, and New Jersey 
 
-**Bivariate Analysis of House Size and Price**
+**Bivariate Analysis of House Size and Price**  
 The house_size feature is continuous data and te best way to represent this is via scatterplot. However, the plot can easily become messy and incoherent when there are too many overlapping points. One way around this to to sample the data. 
 
 ![relationship_between_house_size_and_price1](https://github.com/txs7n/Retail-Business-Sales-Data-Analysis/assets/118135226/cf315b53-e0e2-4396-83eb-cb633a7f5c22)
 
 Running this plot using different random samples, we see a positive correlation between house size and price, which is expected in real estate markets. Larger houses tend to be priced higher than smaller ones. Despite the overall trend, there's considerable variability in prices for houses of similar sizes. This suggests that factors other than size, such as location, could be a factor. Additionally, this distribution does not form a tight line, indicating that the relationship between house size and price is not strictly linear and is influenced by other factors.
 
-​**Bivariate Analysis of Acre Lot and Price**
+​**Bivariate Analysis of Acre Lot and Price**  
 I had the same dilemma with the acre_lot feature (i.e. continuous data on scatter plot which can get very messy). Hence, I employed the same method to analyze this feature with respect to price.
 
 ![relationship_between_acre_lot_and_price1](https://github.com/txs7n/Retail-Business-Sales-Data-Analysis/assets/118135226/31501266-f347-4c6a-888b-dd3590b0b2c4)
@@ -102,4 +107,60 @@ From these two pie charts, our assumption is corroborated; Most properties with 
 
 As expected, the most expensive zip codes by median home prices are in Massachusetts, New York, and New Jersey.
 
-## Modelling
+## Feature Engineering & Modeling  
+This real estate dataset contained four categorical features - **status**, **city**, **state**, and **zip_code**. While the status feature only contained 2 unique categories, the other three contained numerous; 2,487, 18, and 3,140 unique categories for the city, state, and zip_code features respectively. Using one-hot encoding to encode these features for our model will lead huge increase in the dataset's dimensionality, which can cause overfitting and increased computational complexity.  
+
+We could utilize other encoding techniques such as frequency and target encoding but each presents its unique limitations with respect to this dataset. Frequency encoding works best in cases where the frequency is somewhat related to the target variable. Target encoding depends heavily on the mean which can be affected by the established skewness of this data. The best bet was to choose a model that can handle categorical data as-is. LightGBM and CatBoost Models offer this capability.  
+
+Starting with the LightGBM, we trained a base model and got the following evaluation metrics:
+- Mean Absolute Error (MAE): 145698.63880546845  
+- Mean Squared Error (MSE): 56436442815.639626  
+- Root Mean Squared Error (RMSE): 237563.55531865495  
+- R-squared (R²): 0.7517769514334849
+
+These are very high error values so I proceeded to use the CatBoost Regressor model and got the following metrics:
+- Mean Absolute Error (MAE): 148825.2731400052  
+- Mean Squared Error (MSE): 60003835689.191536  
+- Root Mean Squared Error: 244956.80372096534  
+- R-squared (R²): 0.7360865731897639
+
+These are equally high error values. The good thing about the CatBoost model is, it gives a visual representation of how the model performs with each iteration. I found that the model indicated convergence around RMSE = 160,000. So we either had to improve these base models via hyperparameter tuning or add more features via feature engineering. I proceeded with the latter.  
+
+I added four features namely:  
+- price_per_sqft: Price of the house by the house size 
+- bed_to_bath_ratio: Number of bedrooms by number of bathrooms
+- bed_to_acre_ratio: Number of bedrooms by acre lot
+- bath_to_acre_ratio: Number of bathrooms by acre lot
+
+I decided to use the LightGBM model once again with this new dataframe that has these additional features and found an improvement in the model's performance. LightGBM Regressor gave the following metrics:  
+- Mean Absolute Error (MAE): 9266.099757717522
+- Mean Squared Error (MSE): 313253540.8309629
+- Root Mean Squared Error (RMSE): 17698.970050004686
+- R-squared (R²): 0.9986222244882916
+
+While the CatBoost Regressor model gave the following evaluation metrics:  
+- Mean Absolute Error (MAE): 5784.1493203291275
+- Mean Squared Error (MSE): 208237052.75840005
+- Root Mean Squared Error: 14430.4210873557
+- R-squared (R²): 0.9990841159810683
+
+## Conclusion  
+- The CatBoost model gives better evaluation metrics after adding a couple of features. Hence, we will be adopting this model for our dataset.  
+
+- A Mean Absolute Error of 584.15 suggests that on average, the model's predictions are off by about $6,000.  
+
+- The RMSE value punishes the model even mode because it gives relatively high weight to large errors. The Root Mean Square Error tells us that our model's predictions are off by $14,000.  
+
+- Relative to the high prices present in this dataset (up to $2 million), an RMSE of 14,430 against a backdrop of these high property prices is relatively small. It indicates that the model's predictions are quite close to the actual values, especially for higher-priced properties.  
+
+- An R-squared value of nearly 1 is extremely high and suggests that the model explains almost all the variance in the property prices. This is an indication of a very good fit.  
+
+Normalizing the Root Mean Squared Error (RMSE) can be a useful way to put the error metric into context, especially when dealing with a wide range of values in your target variable, like in your real estate data. Normalized RMSE expresses the error as a percentage of the range of the target variable, making it easier to interpret regardless of the scale of the values.
+
+I calculated a normalized RMSE of 0.54% indicating that the typical prediction error of the model is just over half a percent of the range of your property prices.  
+
+Given that this range spans from 75,000 to 2,749,000, such a small percentage is a strong indicator of the model's accuracy.  
+
+## Recommendation  
+- To further improve the model and get the best fit, we can always use grid search cross-validation to tune the parameters of our model.
+- As we saw from the modeling of our dataset, feature engineering greatly improved the performance. So we can also consider adding more features from external data (e.g. proximity to facilities, property conditions such as 'new', 'good', 'needs work, median household income of the area, etc.).
